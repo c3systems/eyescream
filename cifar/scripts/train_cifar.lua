@@ -40,6 +40,7 @@ print(opt)
 -- fix seed
 torch.manualSeed(1)
 math.randomseed(1)
+cutorch.manualSeed(1)
 
 -- threads
 torch.setnumthreads(opt.threads)
