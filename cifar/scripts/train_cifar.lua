@@ -32,15 +32,17 @@ opt = lapp[[
   --hidden_G         (default 8000)        number of units in hidden layers of G
   --hidden_D         (default 1600)        number of units in hidden layers of D
   --scale            (default 32)          scale of images to train on
+  --seed             (default 1)           rng seed
+  --epochs           (default 100)         number of epochs for which to train
 ]]
 
 if opt.gpu < 0 or opt.gpu > 3 then opt.gpu = false end
 print(opt)
 
 -- fix seed
-torch.manualSeed(1)
-math.randomseed(1)
-cutorch.manualSeed(1)
+torch.manualSeed(opt.seed)
+math.randomseed(opt.seed)
+cutorch.manualSeed(opt.seed)
 
 -- threads
 torch.setnumthreads(opt.threads)
@@ -190,7 +192,8 @@ end
 
 
 -- training loop
-while true do
+while !epoch or epoch <= opt.epochs do
+  print 'epoch #{0}'.format(epoch)
   -- train/test
   adversarial.train(trainData)
   adversarial.test(valData)
@@ -201,7 +204,7 @@ while true do
   sgdState_G.learningRate = math.max(sgdState_G.learningRate / 1.000004, 0.000001)
 
   -- plot errors
-  if opt.plot  and epoch and epoch % 1 == 0 then
+  if opt.plot and epoch and epoch % 1 == 0 then
     local to_plot = getSamples(valData, 100)
     torch.setdefaulttensortype('torch.FloatTensor')
 
